@@ -77,27 +77,90 @@ cp .env.prod .env
 # MONGO_PASSWORDを安全なパスワードに変更してください
 ```
 
-### 3. 起動方法
+### 3. Docker Compose ファイルの使い分け
 
-#### 開発環境
+このプロジェクトには3つのDocker Composeファイルがあり、それぞれ異なる用途に最適化されています：
+
+| ファイル | 用途 | 特徴 |
+|----------|------|------|
+| `docker-compose.yml` | **開発環境** | ホットリロード、デバッグログ、直接DB接続 |
+| `docker-compose.prod.yml` | **本番環境** | Nginx、リソース制限、SSL対応、セキュリティ強化 |
+| `docker-compose.backup.yml` | **バックアップ専用** | データベースバックアップスクリプト実行 |
+
+### 4. 起動方法
+
+#### 開発環境（推奨）
 ```bash
+# 開発用環境設定をコピー
+cp .env.dev .env
+
 # 開発環境で起動（ホットリロード有効）
 docker-compose up -d
 
 # ログを確認
 docker-compose logs -f web
+
+# 停止
+docker-compose down
 ```
+
+**開発環境の特徴:**
+- ✅ ホットリロード対応（コード変更が自動反映）
+- ✅ デバッグログ有効（`LOG_LEVEL=DEBUG`）
+- ✅ MongoDB直接アクセス可能（ポート27017）
+- ✅ 開発用Dockerターゲット使用
 
 #### 本番環境
 ```bash
+# 本番用環境設定をコピー
+cp .env.prod .env
+
+# ⚠️ 重要: 本番環境では以下を必ず変更
+# - MONGO_PASSWORD: 強固なパスワードに変更
+# - JWT_SECRET_KEY: 本番用秘密鍵に変更
+
 # 本番環境で起動（Nginx + 最適化済み）
 ENVIRONMENT=production docker-compose -f docker-compose.prod.yml up -d
 
 # ログを確認
 docker-compose -f docker-compose.prod.yml logs -f
+
+# 停止
+docker-compose -f docker-compose.prod.yml down
 ```
 
-### 4. 動作確認
+**本番環境の特徴:**
+- ✅ Nginx リバースプロキシ（SSL対応準備済み）
+- ✅ リソース制限設定（メモリ512MB、CPU 0.5コア）
+- ✅ セキュリティ強化（DEBUG=false）
+- ✅ 本番用Dockerイメージ（最適化済み）
+
+#### データベースバックアップ
+```bash
+# 開発環境または本番環境が起動している状態で実行
+docker-compose -f docker-compose.backup.yml --profile backup up backup
+
+# または直接スクリプト実行
+./scripts/backup_db.sh
+```
+
+#### 環境切り替えのベストプラクティス
+```bash
+# 開発中の通常作業
+cp .env.dev .env
+docker-compose up -d
+
+# 本番環境のローカルテスト
+cp .env.prod .env
+# .env.prodの機密情報を本番用に変更後
+ENVIRONMENT=production docker-compose -f docker-compose.prod.yml up -d
+
+# 完全な環境リセット
+docker-compose down -v  # ボリューム含む全削除
+docker-compose up -d    # 新規起動
+```
+
+### 5. 動作確認
 
 ```bash
 # 包括的ヘルスチェック
