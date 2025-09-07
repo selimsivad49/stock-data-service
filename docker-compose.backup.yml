@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backup:
+    image: mongo:7.0
+    volumes:
+      - ./backup:/backup
+      - ./scripts:/scripts
+    environment:
+      - MONGO_PASSWORD=${MONGO_PASSWORD:-password}
+    networks:
+      - stock_network
+    command: /scripts/backup_db.sh
+    depends_on:
+      - mongo
+    profiles:
+      - backup
+
+networks:
+  stock_network:
+    external: true
