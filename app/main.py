@@ -135,8 +135,9 @@ async def health_check():
     status_code = 200 if health_status["status"] == "healthy" else 503
     
     from fastapi import Response
+    import json
     return Response(
-        content=health_status,
+        content=json.dumps(health_status),
         status_code=status_code,
         media_type="application/json"
     )

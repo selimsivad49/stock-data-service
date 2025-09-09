@@ -38,7 +38,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         }
         
         # Content Security Policy（開発時は緩い設定）
-        if request.app.state.debug if hasattr(request.app, 'state') else False:
+        is_debug = getattr(request.app.state, 'debug', False) if hasattr(request.app, 'state') else False
+        if is_debug:
             # 開発環境では Swagger UI が動作するよう緩い設定
             csp = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; img-src 'self' data: https:; connect-src 'self' https:"
         else:

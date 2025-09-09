@@ -129,7 +129,7 @@ async def require_authentication(
     return auth_context
 
 
-async def require_role(required_role: UserRole):
+def require_role(required_role: UserRole):
     """指定されたロールを必須とする"""
     def role_checker(auth_context: AuthContext = Depends(require_authentication)) -> AuthContext:
         if not auth_context.has_role(required_role):
@@ -142,7 +142,7 @@ async def require_role(required_role: UserRole):
     return role_checker
 
 
-async def require_scope(required_scope: APIKeyScope):
+def require_scope(required_scope: APIKeyScope):
     """指定されたスコープを必須とする"""
     def scope_checker(auth_context: AuthContext = Depends(require_authentication)) -> AuthContext:
         if not auth_context.has_scope(required_scope):
@@ -156,19 +156,9 @@ async def require_scope(required_scope: APIKeyScope):
 
 
 # 便利な依存関数
-async def require_admin(auth_context: AuthContext = Depends(require_role(UserRole.ADMIN))) -> AuthContext:
-    """管理者権限を必須とする"""
-    return auth_context
-
-
-async def require_read_access(auth_context: AuthContext = Depends(require_scope(APIKeyScope.READ))) -> AuthContext:
-    """読み取り権限を必須とする"""
-    return auth_context
-
-
-async def require_write_access(auth_context: AuthContext = Depends(require_scope(APIKeyScope.WRITE))) -> AuthContext:
-    """書き込み権限を必須とする"""
-    return auth_context
+require_admin = require_role(UserRole.ADMIN)
+require_read_access = require_scope(APIKeyScope.READ)
+require_write_access = require_scope(APIKeyScope.WRITE)
 
 
 class RateLimitMiddleware:
