@@ -3,6 +3,58 @@ db = db.getSiblingDB('stock_data');
 
 print('Initializing stock_data database...');
 
+// コレクションレベルの設定（インデックス作成前に実行）
+print('Configuring collection settings...');
+
+// daily_prices のバリデーションスキーマ付きでコレクションを作成
+print('Creating daily_prices collection with validation schema...');
+db.createCollection("daily_prices", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["symbol", "date", "open", "high", "low", "close", "volume"],
+            properties: {
+                symbol: {
+                    bsonType: "string",
+                    description: "Stock symbol is required"
+                },
+                date: {
+                    bsonType: "string",
+                    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    description: "Date must be in YYYY-MM-DD format"
+                },
+                open: {
+                    bsonType: "double",
+                    minimum: 0,
+                    description: "Open price must be positive"
+                },
+                high: {
+                    bsonType: "double",
+                    minimum: 0,
+                    description: "High price must be positive"
+                },
+                low: {
+                    bsonType: "double",
+                    minimum: 0,
+                    description: "Low price must be positive"
+                },
+                close: {
+                    bsonType: "double",
+                    minimum: 0,
+                    description: "Close price must be positive"
+                },
+                volume: {
+                    bsonType: "int",
+                    minimum: 0,
+                    description: "Volume must be non-negative"
+                }
+            }
+        }
+    },
+    validationLevel: "moderate",
+    validationAction: "warn"
+});
+
 // users コレクションのインデックス
 print('Creating indexes for users collection...');
 db.users.createIndex(
@@ -162,57 +214,6 @@ db.financials.createIndex(
         background: true
     }
 );
-
-// コレクションレベルの設定
-print('Configuring collection settings...');
-
-// daily_prices のバリデーションスキーマ
-db.createCollection("daily_prices", {
-    validator: {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["symbol", "date", "open", "high", "low", "close", "volume"],
-            properties: {
-                symbol: {
-                    bsonType: "string",
-                    description: "Stock symbol is required"
-                },
-                date: {
-                    bsonType: "string",
-                    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
-                    description: "Date must be in YYYY-MM-DD format"
-                },
-                open: {
-                    bsonType: "double",
-                    minimum: 0,
-                    description: "Open price must be positive"
-                },
-                high: {
-                    bsonType: "double",
-                    minimum: 0,
-                    description: "High price must be positive"
-                },
-                low: {
-                    bsonType: "double",
-                    minimum: 0,
-                    description: "Low price must be positive"
-                },
-                close: {
-                    bsonType: "double",
-                    minimum: 0,
-                    description: "Close price must be positive"
-                },
-                volume: {
-                    bsonType: "int",
-                    minimum: 0,
-                    description: "Volume must be non-negative"
-                }
-            }
-        }
-    },
-    validationLevel: "moderate",
-    validationAction: "warn"
-});
 
 // デフォルト管理者ユーザーを作成
 print('Creating default admin user...');

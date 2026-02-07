@@ -12,14 +12,14 @@ set "SCRIPT_DIR=%~dp0"
 set "PROJECT_DIR=%SCRIPT_DIR%.."
 set "BACKUP_BASE_DIR=%PROJECT_DIR%\backups"
 
-if "%MONGO_USERNAME%"=="" set "MONGO_USERNAME=admin"
-if "%MONGO_PASSWORD%"=="" set "MONGO_PASSWORD=password"
-if "%DATABASE_NAME%"=="" set "DATABASE_NAME=stock_data"
+if "%MONGO_USERNAME%"=="" (set "MONGO_USERNAME=admin")
+if "%MONGO_PASSWORD%"=="" (set "MONGO_PASSWORD=password")
+if "%DATABASE_NAME%"=="" (set "DATABASE_NAME=stock_data")
 
 REM リストアモード (デフォルト: merge)
 set "BACKUP_FILE=%~1"
 set "RESTORE_MODE=%~2"
-if "%RESTORE_MODE%"=="" set "RESTORE_MODE=merge"
+if "%RESTORE_MODE%"=="" (set "RESTORE_MODE=merge")
 
 REM ----- ヘルプ -----
 if "%BACKUP_FILE%"=="-h" goto :usage
@@ -98,7 +98,7 @@ set "TIMESTAMP=%DT:~0,14%"
 
 REM 一時ディレクトリを作成
 set "TEMP_DIR=%TEMP%\stock_restore_%TIMESTAMP%"
-if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
+if exist "%TEMP_DIR%" (rmdir /s /q "%TEMP_DIR%")
 mkdir "%TEMP_DIR%"
 
 echo バックアップを展開中: %TEMP_DIR%
@@ -203,7 +203,7 @@ for %%C in (%COLLECTIONS%) do (
 
 REM クリーンアップ
 %COMPOSE_CMD% exec -T mongo rm -rf /tmp/migration_restore >nul 2>&1
-if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%" 2>nul
+if exist "%TEMP_DIR%" (rmdir /s /q "%TEMP_DIR%" 2>nul)
 
 echo.
 echo === リストア完了 ===
@@ -216,7 +216,7 @@ exit /b 0
 
 :cleanup_error
 %COMPOSE_CMD% exec -T mongo rm -rf /tmp/migration_restore >nul 2>&1
-if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%" 2>nul
+if exist "%TEMP_DIR%" (rmdir /s /q "%TEMP_DIR%" 2>nul)
 exit /b 1
 
 :usage

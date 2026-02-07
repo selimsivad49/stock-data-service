@@ -17,14 +17,14 @@ for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /format:list 2^>nu
 set "DATE=%DT:~0,4%%DT:~4,2%%DT:~6,2%_%DT:~8,2%%DT:~10,2%%DT:~12,2%"
 set "BACKUP_NAME=stock_data_migration_%DATE%"
 
-if "%MONGO_USERNAME%"=="" set "MONGO_USERNAME=admin"
-if "%MONGO_PASSWORD%"=="" set "MONGO_PASSWORD=password"
-if "%DATABASE_NAME%"=="" set "DATABASE_NAME=stock_data"
-if "%RETENTION_DAYS%"=="" set "RETENTION_DAYS=30"
+if "%MONGO_USERNAME%"=="" (set "MONGO_USERNAME=admin")
+if "%MONGO_PASSWORD%"=="" (set "MONGO_PASSWORD=password")
+if "%DATABASE_NAME%"=="" (set "DATABASE_NAME=stock_data")
+if "%RETENTION_DAYS%"=="" (set "RETENTION_DAYS=30")
 
 REM バックアップモード (デフォルト: all)
 set "BACKUP_MODE=%~1"
-if "%BACKUP_MODE%"=="" set "BACKUP_MODE=all"
+if "%BACKUP_MODE%"=="" (set "BACKUP_MODE=all")
 
 REM ----- ヘルプ -----
 if "%BACKUP_MODE%"=="-h" goto :usage
@@ -67,11 +67,11 @@ if %errorlevel% neq 0 (
 )
 
 REM バックアップディレクトリを作成
-if not exist "%BACKUP_BASE_DIR%" mkdir "%BACKUP_BASE_DIR%"
+if not exist "%BACKUP_BASE_DIR%" (mkdir "%BACKUP_BASE_DIR%")
 
 REM 一時ディレクトリを作成
 set "TEMP_DIR=%TEMP%\stock_backup_%DATE%"
-if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
+if exist "%TEMP_DIR%" (rmdir /s /q "%TEMP_DIR%")
 mkdir "%TEMP_DIR%\%BACKUP_NAME%"
 
 echo 一時ディレクトリ: %TEMP_DIR%
@@ -178,7 +178,7 @@ echo   scripts\restore_data.bat %BACKUP_NAME%.tar.gz
 exit /b 0
 
 :cleanup_error
-if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%" 2>nul
+if exist "%TEMP_DIR%" (rmdir /s /q "%TEMP_DIR%" 2>nul)
 %COMPOSE_CMD% exec -T mongo rm -rf /tmp/migration_backup >nul 2>&1
 exit /b 1
 
