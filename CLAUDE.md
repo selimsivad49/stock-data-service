@@ -38,11 +38,21 @@ open http://localhost:8000/docs
 
 ### Database Operations
 ```bash
-# Backup database
-./scripts/backup_db.sh
+# Backup database (all data)
+./scripts/backup_data.sh
 
-# Restore database from backup
-./scripts/restore_db.sh backup_file.tar.gz
+# Backup stock data only (exclude users/api_keys)
+./scripts/backup_data.sh data
+
+# Restore database from backup (merge mode - default)
+./scripts/restore_data.sh stock_data_migration_YYYYMMDD_HHMMSS.tar.gz
+
+# Restore database from backup (replace mode - drop existing data)
+./scripts/restore_data.sh stock_data_migration_YYYYMMDD_HHMMSS.tar.gz replace
+
+# Windows
+scripts\backup_data.bat
+scripts\restore_data.bat stock_data_migration_YYYYMMDD_HHMMSS.tar.gz
 
 # Access MongoDB directly
 docker-compose exec mongo mongosh -u admin -p password --authenticationDatabase admin stock_data
